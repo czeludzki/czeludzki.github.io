@@ -5,5 +5,6 @@ tags:
 categories: Diary
 updated_at: 2017-11-14 16:00:13
 ---
-###### 今日, 用 github + hexo 搭建了这个博客.  
+今日, 用 github + hexo 搭建了这个博客.  
+
 ![hahah](images/saturn_for_tablet_nude.jpg)
