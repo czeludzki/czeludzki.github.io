@@ -3,7 +3,7 @@ title: First Post
 date: 2017-11-13 16:19:13
 tags:
 categories: Diary
-updated_at: 2017-11-14 18:00:13
+updated_at: 2017-11-16 10:51:13
 ---
 这个是用 github + hexo 搭建的博客.  
 
@@ -29,3 +29,8 @@ updated_at: 2017-11-14 18:00:13
 最后附上我最近在公司用的桌面,太美了有没有.在百度找的,找不到原地址了  
 ![img](http://ozej1b09v.bkt.clouddn.com/%E5%9C%9F%E6%98%9F0.jpg)  
 对了, 图片是存在 [七牛云](https://www.qiniu.com/) 上,已认证的免费用户享受10G空间以及每月10G国内及10G国外流量.
+
+------
+### 17.11.16补充
+在执行 hexo deploy 时出现权限错误,解决参考
+[Error- Permission denied (publickey).错误详解](http://www.wangnunu.com/2016/04/04/Error-Permission-denied-publickey-%E9%94%99%E8%AF%AF%E8%AF%A6%E8%A7%A3/)
