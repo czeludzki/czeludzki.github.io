@@ -7,7 +7,7 @@ title: Czeludzki Page
 subtitle:
 description: 我还想再走远一些
 author: Czeludzki Siu
-language: zh-Hans
+language: zh-CN
 timezone: Asia/Hong_Kong
 
 # URL
@@ -78,7 +78,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: next
+theme: material
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
