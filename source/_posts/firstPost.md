@@ -2,6 +2,7 @@
 title: First Post
 date: 2017-11-13 16:19:13
 tags:
+  - Hexo
 categories: Diary
 updated_at: 2017-11-16 10:51:13
 ---
