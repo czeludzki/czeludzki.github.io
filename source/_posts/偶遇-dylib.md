@@ -50,7 +50,7 @@ $ install_name_tool -id @rpath/libavdevice.58.dylib 我的项目路径/lib/libav
 ## 还有更恶心人的,
 ## `lib` 文件夹里面有十几个这样的 `.dylib` 库, 这意味着, 我要重复这个 `$ install_name_tool -id @rpath/libavdevice.58.dylib 我的项目路径/lib/libavdevice.58.dylib` 命令十几次...
 
->我还一度想要写个 python 脚本来完成执行这个命令十几次的任务, 当然我傻, 但是并没至于如此. 静态编译 ffmpeg 才是出路, 当然这也是后话了.
+>我还一度想要写个 python 脚本来完成执行这个命令十几次的任务, 尽管我傻, 但是并没至于如此. 静态编译 ffmpeg 才是出路, 当然这也是后话了.
 
 秉承着 `实践是检验真理的唯一道路` 这一深深印在我心中的理念, 我手动..人肉..亲自执行了这个命令十几次, 将在项目中 `lib` 文件夹下的所有的 `.dylib` 的 `install name` 都执行了一次, 并且 `brew uninstall ffmpeg` 删除了本地的 ffmpeg 以确保不会干扰到我这个无聊的实验.
 
