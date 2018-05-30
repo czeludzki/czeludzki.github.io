@@ -1,7 +1,7 @@
 ---
 title: 偶遇.dylib
 date: 2018-04-24 21:46:12
-tags:
+tags: ffmpeg
 categories:
 ---
 >以下所说的并不是 ffmpeg 引用到项目中的正确方法, 请不要模仿.  
