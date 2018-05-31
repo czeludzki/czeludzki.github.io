@@ -14,12 +14,12 @@ categories:
 * 如上一篇所说, 要对编译出来的可执行文件进行重定向 rpath 操作. 动态包太多导致过程太过繁琐.
 * 由于我的需求主要是以 ffmpeg 做转换操作, 希望可以在界面上实时地看到转换过程, 是否出错, 可以好像使用 Terminal 一样, 对错误的行有针对性的颜色显示.  如图  ![](WechatIMG1450.jpeg)  
 而如果使用 NSTask 执行 ffmpeg, 我并不能通过 NSTask 准确地捕获到 ffmpeg 执行期间每行输出命令的level.  
-这里说的 level 是 ffmpeg 中 libavutil/log.h 中定义的一系列宏, 包括 AV_LOG_ERROR, AV_LOG_WARNING, AV_LOG_VERBOSE 等等.
-而如果我直接用 ffmpeg.c 中的 main() 函数执行 ffmpeg 命令, 我不仅可以准确地捕获每行输出的 level, 还可以通过 main() 函数的返回, 判断到整个过程是否顺利完成.
+这里说的 level 是 ffmpeg 中 `libavutil/log.h` 中定义的一系列宏定义, 包括 `AV_LOG_ERROR`, `AV_LOG_WARNING`, `AV_LOG_VERBOSE` 等等.
+而如果我直接用 `ffmpeg.c` 中的 `main()` 函数执行 ffmpeg 命令, 我不仅可以准确地捕获每行输出的 level, 还可以通过 `main()` 函数的返回, 判断到整个过程是否顺利完成.
 
 # A.
 编译过程不再赘述, 值得注意的是编译的配置
-```
+```objc
 --prefix=/Users/username/targetPath --disable-doc --enable-pic --enable-cross-compile --enable-pthreads --enable-version3 --enable-nonfree --disable-shared --enable-static --enable-hardcoded-tables --cc=clang --host-cflags= --host-ldflags= --enable-gpl --enable-libfdk-aac --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libxvid --enable-opencl --enable-videotoolbox --enable-audiotoolbox --disable-lzma
 ```
 
@@ -31,7 +31,7 @@ categories:
 相关依赖库如图  
 ![](WechatIMG1453.jpeg)  
 这里要注意的是, 记得加入你需要的第三方依赖库, 不然编译会报错, 就如上面编译配置中我加入了 `--enable-libx265`, 那么就去libx265的开发官网下他们的 libx265.a.  
-不过我不是去他们官网下载的, 哈哈哈哈, 我是用的 homebrew 在电脑上另外装了 ffmpeg, homebrew 将 `下载ffmpeg`, `编译ffmpeg`, `下载相关依赖库`, `搭建ffmpeg环境` 三大工作都做好了, 如无意外可以在 /usr/local/Cellar 文件夹下可以找到, 找到后将相关的 .a 文件加入到项目即可.
+不过我不是去他们官网下载的, 哈哈哈哈, 我是用的 homebrew 在电脑上另外装了 ffmpeg, homebrew 将 `下载ffmpeg`, `编译ffmpeg`, `下载相关依赖库`, `搭建ffmpeg环境` 四大工作都做好了, 如无意外可以在 `/usr/local/Cellar` 文件夹下找到, 找到后将相关的 .a 文件加入到项目即可.
 
 # C.
 将 ffmpeg 源代码中的 fftools 中以下一坨文件加入项目:
@@ -58,7 +58,7 @@ categories:
 
 # D.
 走过了ABC后, 编译顺利通过, 就是成功了一半了. 接下来就是用 ffmpeg_main() 函数执行命令.  
-```
+```objc
 - (void)executeCommand:(NSArray<NSString *> *)commands
 {
     int argc = (int)commands.count;
@@ -90,7 +90,7 @@ macos以及iOS的app都是一般来说都是以单进程的设计概念为主, �
 ![](1527693870904.jpg)  
 由于我要求执行的命令只是简单的 `ffmpeg`, 所以函数执行到上图中 `exit_program(1)` 处就应该结束, 如果 `exit()` 那一行代码没有被注释掉, 那么, 根本不可能继续执行下去.那么原因大概就知道了.    
 所以, 我将 `exit_program()` 函数修改了一下(头文件和实现都要修改), 改为:
-```
+```objc
 int exit_program(int ret)
 {
     if (program_exit)
@@ -110,7 +110,7 @@ int exit_program(int ret)
 ---
 那么几乎可以认定, 这个 `av_noreturn` 修饰, 只是为了 `exit()` 函数存在而服务的, 现在 `exit()` 不存在了, 那我就大胆把它删掉了.
 后来还根据雷神的提示, 在 `ffmpeg.c` 中 `ffmpeg_cleanup()` 函数的末尾 加上各种变量的清零操作:  
-```
+```objc
 nb_frames_dup = 0;
 nb_frames_drop = 0;
 nb_filtergraphs = 0;
@@ -122,4 +122,26 @@ nb_output_streams = 0;
 然后顺利运行.
 
 # E.
-目前为止, 执行媒体格式重新封装, 跨文件封装新的媒体文件, 对音视频字幕流的转码, 对视音频字幕流重新配置一些基础的参数例如采样率比特率视频的scale等都没有任何问题. 如遇到任何问题, 就在这里继续 FGHIJK...
+上面提到了, 我需要准确地捕获到每一个 ffmpeg 的输出日志, 并且可以好像 Terminal 执行 ffmpeg 一样输出的日志根据不同的log_level显示不同的颜色.  
+具体可以去看看 ffmpeg 源码中 `libavutil/log.c` 是怎么实现 `av_log()` 函数的, 这里简单说一下, 大概就是使用 `vsnprintf()` 组合一下输出的字符串, 然后再根据函数的参数 `int level` 设置输出的字体颜色.  
+如果我们要插手 `av_log` 方法来达到需求, 那不仅仅麻烦, 还更进一步地破坏了 ffmpeg 的原生代码, 其实, ffmpeg 提供了一个 `av_log_set_callback(void (*callback)(void*, int, const char*, va_list))` 函数, 只要传入一个 callback 函数的地址, 那么该函数就会接受所有 av_log 的回调.  
+
+```objc
+void FFLogCallBackFunc(void *ptr, int level, const char *fmt, va_list vl)
+{
+    char o[1024];
+    vsnprintf(o, 1024, fmt, vl);
+    NSString *output_desc = [NSString stringWithUTF8String:o];
+    NSLog(@"output_desc = %@\nlevel = %i",output_desc,level);
+}
+
+int main(int argc, const char * argv[]) {
+    av_log_set_callback(&FFLogCallBackFunc);
+    return 0;
+}
+
+```
+
+
+# F.
+目前为止, 执行媒体格式重新封装, 跨文件封装新的媒体文件, 对音视频字幕流的转码, 对视音频字幕流重新配置一些基础的参数例如采样率比特率视频的scale等都没有任何问题. 如遇到任何问题, 就在这里继续 GHIJK...
