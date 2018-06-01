@@ -106,8 +106,9 @@ int exit_program(int ret)
 ![](1527694497040.jpg)  
 原来是 `cmdutils.h` 文件中 `exit_program()` 函数末尾的 `av_noreturn` 修饰导致 `exit_program()` 函数被合法地认定为没有返回, 所以即使在外部调用 `return exit_program(xxx)`, 都无法正常地退出函数.  
 `av_noreturn` 的详细解释请参考:  
-[__ATTRIBUTE__ 你知多少？](https://www.cnblogs.com/astwish/p/3460618.html)  
----
+
+>[__ATTRIBUTE__ 你知多少？](https://www.cnblogs.com/astwish/p/3460618.html)   
+
 那么几乎可以认定, 这个 `av_noreturn` 修饰, 只是为了 `exit()` 函数存在而服务的, 现在 `exit()` 不存在了, 那我就大胆把它删掉了.
 后来还根据雷神的提示, 在 `ffmpeg.c` 中 `ffmpeg_cleanup()` 函数的末尾 加上各种变量的清零操作:  
 ```objc
