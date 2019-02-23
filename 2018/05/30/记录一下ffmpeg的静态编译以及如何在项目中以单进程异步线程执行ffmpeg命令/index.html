@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ffmpeg," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇文章也有提到, 将动态库加入到项目中使用实在并不是上策, 所以有了这个静态库编译并在项目中使用的实践记录.可能网上很多地方都有相似的教程和说明, 所以在这里我打算尽可能说一些别人没说过的.(其实是我找不到的😂)">
+<meta name="keywords" content="ffmpeg">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令">
+<meta property="og:url" content="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/index.html">
+<meta property="og:site_name" content="Czeludzki Page">
+<meta property="og:description" content="上一篇文章也有提到, 将动态库加入到项目中使用实在并不是上策, 所以有了这个静态库编译并在项目中使用的实践记录.可能网上很多地方都有相似的教程和说明, 所以在这里我打算尽可能说一些别人没说过的.(其实是我找不到的😂)">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/WechatIMG1450.jpeg">
+<meta property="og:image" content="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/WechatIMG1453.jpeg">
+<meta property="og:image" content="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/WechatIMG1455.jpeg">
+<meta property="og:image" content="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/1527693870904.jpg">
+<meta property="og:image" content="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/1527694497040.jpg">
+<meta property="og:updated_time" content="2018-06-01T14:31:55.088Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令">
+<meta name="twitter:description" content="上一篇文章也有提到, 将动态库加入到项目中使用实在并不是上策, 所以有了这个静态库编译并在项目中使用的实践记录.可能网上很多地方都有相似的教程和说明, 所以在这里我打算尽可能说一些别人没说过的.(其实是我找不到的😂)">
+<meta name="twitter:image" content="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/WechatIMG1450.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/"/>
+
+
+
+
+
+  <title>记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令 | Czeludzki Page</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Czeludzki Page</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-ios项目:我是房东">
+          <a href="/2017/11/15/我是房东-项目介绍/我是房东-项目介绍" rel="section">
+            
+            iOS项目:我是房东
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.czeludzki.com/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Czeludzki Siu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Czeludzki Page">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-30T20:39:00+08:00">
+                2018-05-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一篇文章也有提到, 将动态库加入到项目中使用实在并不是上策, 所以有了这个静态库编译并在项目中使用的实践记录.<br>可能网上很多地方都有相似的教程和说明, 所以在这里我打算尽可能说一些别人没说过的.(其实是我找不到的😂)<br><a id="more"></a></p>
+<p>开始之前说明一下为什么我认为将ffmpeg编译的动态库加入到项目中并不是上策:</p>
+<ul>
+<li>包会相对的大.</li>
+<li>如上一篇所说, 要对编译出来的可执行文件进行重定向 rpath 操作. 动态包太多导致过程太过繁琐.</li>
+<li>由于我的需求主要是以 ffmpeg 做转换操作, 希望可以在界面上实时地看到转换过程, 是否出错, 可以好像使用 Terminal 一样, 对错误的行有针对性的颜色显示.  如图  <img src="/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/WechatIMG1450.jpeg" alt=""><br>而如果使用 NSTask 执行 ffmpeg, 我并不能通过 NSTask 准确地捕获到 ffmpeg 执行期间每行输出命令的level.<br>这里说的 level 是 ffmpeg 中 <code>libavutil/log.h</code> 中定义的一系列宏定义, 包括 <code>AV_LOG_ERROR</code>, <code>AV_LOG_WARNING</code>, <code>AV_LOG_VERBOSE</code> 等等.<br>而如果我直接用 <code>ffmpeg.c</code> 中的 <code>main()</code> 函数执行 ffmpeg 命令, 我不仅可以准确地捕获每行输出的 level, 还可以通过 <code>main()</code> 函数的返回, 判断到整个过程是否顺利完成.</li>
+</ul>
+<h1 id="A"><a href="#A" class="headerlink" title="A."></a>A.</h1><p>编译过程不再赘述, 值得注意的是编译的配置<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--prefix=/Users/username/targetPath --disable-doc --enable-pic --enable-cross-compile --enable-pthreads --enable-version3 --enable-nonfree --disable-shared --enable-<span class="keyword">static</span> --enable-hardcoded-tables --cc=clang --host-cflags= --host-ldflags= --enable-gpl --enable-libfdk-aac --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libxvid --enable-opencl --enable-videotoolbox --enable-audiotoolbox --disable-lzma</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>其中 <code>--disable-shared</code> 和 <code>--enable-static</code> 分别是指: 不编译为动态库, 编译为静态库  </li>
+<li><code>--disable-programs</code> 是指不生成可执行文件(ffmpeg, ffprobe, ffplay 等)</li>
+</ul>
+<h1 id="B"><a href="#B" class="headerlink" title="B."></a>B.</h1><p>将编译出来的两个文件夹, <code>include</code>,<code>lib</code> 加入项目, 并加入相关依赖库, 编译通过.<br>相关依赖库如图<br><img src="/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/WechatIMG1453.jpeg" alt=""><br>这里要注意的是, 记得加入你需要的第三方依赖库, 不然编译会报错, 就如上面编译配置中我加入了 <code>--enable-libx265</code>, 那么就去libx265的开发官网下他们的 libx265.a.<br>不过我不是去他们官网下载的, 哈哈哈哈, 我是用的 homebrew 在电脑上另外装了 ffmpeg, homebrew 将 <code>下载ffmpeg</code>, <code>编译ffmpeg</code>, <code>下载相关依赖库</code>, <code>搭建ffmpeg环境</code> 四大工作都做好了, 如无意外可以在 <code>/usr/local/Cellar</code> 文件夹下找到, 找到后将相关的 .a 文件加入到项目即可.</p>
+<h1 id="C"><a href="#C" class="headerlink" title="C."></a>C.</h1><p>将 ffmpeg 源代码中的 fftools 中以下一坨文件加入项目:</p>
+<blockquote>
+<ul>
+<li>ffmpeg.c</li>
+<li>ffmpeg.h</li>
+<li>cmdutils.c</li>
+<li>cmdutils.h</li>
+<li>ffmpeg_cuvid.c</li>
+<li>ffmpeg_filter.code</li>
+<li>ffmpeg_hw.c</li>
+<li>ffmpeg_opt.c</li>
+<li>ffmpeg_videotoolbox.c  </li>
+</ul>
+</blockquote>
+<p>编译, 然后是一定会报错的. 各种找不到 <code>#include &quot;谁谁谁&quot;</code> , 好可怕对吧. 这些报错真是把我吓尿了, 后来我大概是做了这些事:</p>
+<ul>
+<li>尽可能不对 找不到的 <code>#include xxx</code> 做 注释/删除, 因为可能会涉及更多依赖定义找不到, 找不到的话就去 ffmpeg 的源码中去拉取.<br>例如 <code>#include &quot;libavutil/thread&quot;</code> 说找不到, 那就去 ffmpeg 源码 中去拉. <code>#include &quot;config.h&quot;</code> 文件找不到, 我就去 ffmpeg 源码去拉, 反正想要的都在 ffmpeg 的源码里.<br>如图<br><img src="/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/WechatIMG1455.jpeg" alt="">  </li>
+<li>我还记得我编译出来的 <code>lib</code> 文件夹中并没有 <code>libswresample</code> 相关的文件夹, 也就是意味着, 我编译出来要用的功能是用不着 <code>libswresample</code> 这个模块内容的, 那么我就直接把所有说找不到 <code>#include &quot;libswresample/xxxx&quot;</code> 的都 注释/删除 掉, 甚至将代码中实际使用到的相关报错都注释掉.</li>
+<li>反正大胆操作就对了. 要不就拖到项目, 不行就注释掉.</li>
+<li>如果最后不再跟你说找不到 <code>#include &quot;xxxxx&quot;</code> 了, 到了链接那一步出错, 那几乎 80% 的情况是少了某些依赖库.<br>我记得在我步骤 B 中是顺利编译的, 到了步骤 C, 加入了 <code>fftools</code> 文件夹以下的那坨文件后, 在链接状态中报错, 隐约记得是 <code>&quot;_clxxxxxx&quot;</code> 方法找不到了, 那就加入了 <code>OpenCL.framework</code>, 就好了.</li>
+<li>如果各种库加上了, 编译时依然是在链接的那一步有问题, 我偷偷告诉你, <code>ffmpeg.c</code> 中有个 main() 函数, 一个项目中(可执行文件)有且只能存在一个 main() 函数. 把 <code>ffmpeg.c</code> 中的 mian() 函数改名, 例如 ffmpeg_main() 之类的.  </li>
+</ul>
+<h1 id="D"><a href="#D" class="headerlink" title="D."></a>D.</h1><p>走过了ABC后, 编译顺利通过, 就是成功了一半了. 接下来就是用 ffmpeg_main() 函数执行命令.<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)executeCommand:(<span class="built_in">NSArray</span>&lt;<span class="built_in">NSString</span> *&gt; *)commands</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">int</span> argc = (<span class="keyword">int</span>)commands.count;</span><br><span class="line">    <span class="keyword">char</span>** argv=(<span class="keyword">char</span>**)malloc(<span class="keyword">sizeof</span>(<span class="keyword">char</span>*)*argc);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;argc; i++)&#123;</span><br><span class="line">        argv[i] = (<span class="keyword">char</span>*)malloc(<span class="keyword">sizeof</span>(<span class="keyword">char</span>)*<span class="number">1024</span>);</span><br><span class="line">        strcpy(argv[i],[[commands objectAtIndex:i] UTF8String]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">dispatch_async</span>(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, <span class="number">0</span>), ^&#123;</span><br><span class="line">        <span class="keyword">int</span> rec = ffmpeg_main(argc, argv);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;argc;i++) free(argv[i]);</span><br><span class="line">        free(argv);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"rec = %i"</span>,rec);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我就是这么干的.<br>如果你直接这么干就出问题了. 你会发现命令确实可以跑起来, 但是完毕了, app就自动退出.<br>问题出在 <code>cmdutils.c</code> 中的 <code>exit_program()</code> 函数, 其中的 <code>exit(ret)</code> 一行.<br>ffmpeg 每次执行命令时, 都会创建一个新的进程去执行, 当命令执行完毕, 就会调 <code>exit_program()</code> 做一系列的清理工作, 然后 <code>exit(ret)</code> 直接把进程杀死.<br>macos以及iOS的app都是一般来说都是以单进程的设计概念为主, 尤其是非越狱的 iOS 更是没有多进程的概念, 这也能解释了, 为什么当命令执行完毕, app就自动退出.  </p>
+<p>那就先注释掉 <code>exit(ret)</code> 这一行, 使命令执行完毕, 也不用杀掉进程.<br>再次运行命令 <code>ffmpeg</code>(就这个简单的命令而已) , 出错, 依稀记得是 访问了某个空数组越界的错误.<br>分析一下 ffmpeg.c 中被改名为 ffmpeg_main() 的 main() 函数,<br>如图:<br><img src="/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/1527693870904.jpg" alt=""><br>由于我要求执行的命令只是简单的 <code>ffmpeg</code>, 所以函数执行到上图中 <code>exit_program(1)</code> 处就应该结束, 如果 <code>exit()</code> 那一行代码没有被注释掉, 那么, 根本不可能继续执行下去.那么原因大概就知道了.<br>所以, 我将 <code>exit_program()</code> 函数修改了一下(头文件和实现都要修改), 改为:<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> exit_program(<span class="keyword">int</span> ret)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (program_exit)</span><br><span class="line">        program_exit(ret);</span><br><span class="line"><span class="comment">//    exit(ret);</span></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>并且在 ffmpeg() 函数中的所有 <code>exit_program(xxx)</code> 都改为 <code>return exit_program(xxx)</code>, 使 ffmpeg() 函数执行到 <code>exit_program(xxx)</code> 直接结束, 不再往下走.</p>
+<h4 id="但是问题依旧"><a href="#但是问题依旧" class="headerlink" title="但是问题依旧!!"></a>但是问题依旧!!</h4><p>即使有了 <code>return exit_program(xxx)</code>, 函数还是继续往下走, 百度一下, 找到了问题出现的原因.<br><img src="/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/1527694497040.jpg" alt=""><br>原来是 <code>cmdutils.h</code> 文件中 <code>exit_program()</code> 函数末尾的 <code>av_noreturn</code> 修饰导致 <code>exit_program()</code> 函数被合法地认定为没有返回, 所以即使在外部调用 <code>return exit_program(xxx)</code>, 都无法正常地退出函数.<br><code>av_noreturn</code> 的详细解释请参考:  </p>
+<blockquote>
+<p><a href="https://www.cnblogs.com/astwish/p/3460618.html" target="_blank" rel="noopener"><strong>ATTRIBUTE</strong> 你知多少？</a>   </p>
+</blockquote>
+<p>那么几乎可以认定, 这个 <code>av_noreturn</code> 修饰, 只是为了 <code>exit()</code> 函数存在而服务的, 现在 <code>exit()</code> 不存在了, 那我就大胆把它删掉了.<br>后来还根据雷神的提示, 在 <code>ffmpeg.c</code> 中 <code>ffmpeg_cleanup()</code> 函数的末尾 加上各种变量的清零操作:<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">nb_frames_dup = <span class="number">0</span>;</span><br><span class="line">nb_frames_drop = <span class="number">0</span>;</span><br><span class="line">nb_filtergraphs = <span class="number">0</span>;</span><br><span class="line">nb_input_files = <span class="number">0</span>;</span><br><span class="line">nb_input_streams = <span class="number">0</span>;</span><br><span class="line">nb_output_files = <span class="number">0</span>;</span><br><span class="line">nb_output_streams = <span class="number">0</span>;</span><br></pre></td></tr></table></figure></p>
+<p>然后顺利运行.</p>
+<h1 id="E"><a href="#E" class="headerlink" title="E."></a>E.</h1><p>上面提到了, 我需要准确地捕获到每一个 ffmpeg 的输出日志, 并且可以好像 Terminal 执行 ffmpeg 一样输出的日志根据不同的log_level显示不同的颜色.<br>具体可以去看看 ffmpeg 源码中 <code>libavutil/log.c</code> 是怎么实现 <code>av_log()</code> 函数的, 这里简单说一下, 大概就是使用 <code>vsnprintf()</code> 组合一下输出的字符串, 然后再根据函数的参数 <code>int level</code> 设置输出的字体颜色.<br>如果我们要插手 <code>av_log</code> 方法来达到需求, 那不仅仅麻烦, 还更进一步地破坏了 ffmpeg 的原生代码, 其实, ffmpeg 提供了一个 <code>av_log_set_callback(void (*callback)(void*, int, const char*, va_list))</code> 函数, 只要传入一个 callback 函数的地址, 那么该函数就会接受所有 av_log 的回调.  </p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> FFLogCallBackFunc(<span class="keyword">void</span> *ptr, <span class="keyword">int</span> level, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, va_list vl)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">char</span> o[<span class="number">1024</span>];</span><br><span class="line">    vsnprintf(o, <span class="number">1024</span>, fmt, vl);</span><br><span class="line">    <span class="built_in">NSString</span> *output_desc = [<span class="built_in">NSString</span> stringWithUTF8String:o];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"output_desc = %@\nlevel = %i"</span>,output_desc,level);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> * argv[]) &#123;</span><br><span class="line">    av_log_set_callback(&amp;FFLogCallBackFunc);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="F"><a href="#F" class="headerlink" title="F."></a>F.</h1><p>目前为止, 执行媒体格式重新封装, 跨文件封装新的媒体文件, 对音视频字幕流的转码, 对视音频字幕流重新配置一些基础的参数例如采样率比特率视频的scale等都没有任何问题. 如遇到任何问题, 就在这里继续 GHIJK…</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ffmpeg/" rel="tag"># ffmpeg</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/24/偶遇-dylib/" rel="next" title="偶遇.dylib">
+                <i class="fa fa-chevron-left"></i> 偶遇.dylib
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/01/Flask学习笔记-Request和Response/" rel="prev" title="Flask学习笔记:Request和Response">
+                Flask学习笔记:Request和Response <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Czeludzki Siu" />
+            
+              <p class="site-author-name" itemprop="name">Czeludzki Siu</p>
+              <p class="site-description motion-element" itemprop="description">我还想再走远一些</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/czeludzki" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#A"><span class="nav-number">1.</span> <span class="nav-text">A.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#B"><span class="nav-number">2.</span> <span class="nav-text">B.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C"><span class="nav-number">3.</span> <span class="nav-text">C.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#D"><span class="nav-number">4.</span> <span class="nav-text">D.</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#但是问题依旧"><span class="nav-number">4.0.0.1.</span> <span class="nav-text">但是问题依旧!!</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#E"><span class="nav-number">5.</span> <span class="nav-text">E.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#F"><span class="nav-number">6.</span> <span class="nav-text">F.</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Czeludzki Siu</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

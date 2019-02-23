@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ffmpeg," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="以下所说的并不是 ffmpeg 引用到项目中的正确方法, 请不要模仿.    一切的一切都要从编译 ffmpeg, 并在 mac os 项目上引用 ffmpeg 说起.">
+<meta name="keywords" content="ffmpeg">
+<meta property="og:type" content="article">
+<meta property="og:title" content="偶遇.dylib">
+<meta property="og:url" content="http://www.czeludzki.com/2018/04/24/偶遇-dylib/index.html">
+<meta property="og:site_name" content="Czeludzki Page">
+<meta property="og:description" content="以下所说的并不是 ffmpeg 引用到项目中的正确方法, 请不要模仿.    一切的一切都要从编译 ffmpeg, 并在 mac os 项目上引用 ffmpeg 说起.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.czeludzki.com/2018/04/24/偶遇-dylib/WechatIMG3.jpeg">
+<meta property="og:image" content="http://www.czeludzki.com/2018/04/24/偶遇-dylib/WechatIMG5965.jpeg">
+<meta property="og:image" content="http://www.czeludzki.com/2018/04/24/偶遇-dylib/WechatIMG4.jpeg">
+<meta property="og:image" content="http://www.czeludzki.com/2018/04/24/偶遇-dylib/WechatIMG5.jpeg">
+<meta property="og:updated_time" content="2018-06-01T14:31:55.084Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="偶遇.dylib">
+<meta name="twitter:description" content="以下所说的并不是 ffmpeg 引用到项目中的正确方法, 请不要模仿.    一切的一切都要从编译 ffmpeg, 并在 mac os 项目上引用 ffmpeg 说起.">
+<meta name="twitter:image" content="http://www.czeludzki.com/2018/04/24/偶遇-dylib/WechatIMG3.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.czeludzki.com/2018/04/24/偶遇-dylib/"/>
+
+
+
+
+
+  <title>偶遇.dylib | Czeludzki Page</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Czeludzki Page</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-ios项目:我是房东">
+          <a href="/2017/11/15/我是房东-项目介绍/我是房东-项目介绍" rel="section">
+            
+            iOS项目:我是房东
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.czeludzki.com/2018/04/24/偶遇-dylib/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Czeludzki Siu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Czeludzki Page">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">偶遇.dylib</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-24T21:46:12+08:00">
+                2018-04-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>以下所说的并不是 ffmpeg 引用到项目中的正确方法, 请不要模仿.  </p>
+</blockquote>
+<h3 id="一切的一切都要从编译-ffmpeg-并在-mac-os-项目上引用-ffmpeg-说起"><a href="#一切的一切都要从编译-ffmpeg-并在-mac-os-项目上引用-ffmpeg-说起" class="headerlink" title="一切的一切都要从编译 ffmpeg, 并在 mac os 项目上引用 ffmpeg 说起."></a>一切的一切都要从编译 ffmpeg, 并在 mac os 项目上引用 ffmpeg 说起.</h3><a id="more"></a>
+<p>我是用的 homebrew 装的 ffmpeg, 路径是 <code>/usr/local/Cellar</code> 里面发挥主要用处的有<br><code>bin lib include</code> 三个文件, <code>bin</code> 存放有 ffmpeg, ffprobe 等可执行文件, <code>include</code> 都是头文件, <code>lib</code> 里面放的就是我所偶遇的一大堆 <code>.dylib</code> 以及 <code>.a</code> 库文件.<br><img src="/2018/04/24/偶遇-dylib/WechatIMG3.jpeg" alt=""></p>
+<h6 id="因为想要做个-ffmpeg-给视频转码的项目-要将-ffmpeg-引入-在引入这个阶段-我走了捷径-可以说是搭上了穿梭机-其实是特傻😂"><a href="#因为想要做个-ffmpeg-给视频转码的项目-要将-ffmpeg-引入-在引入这个阶段-我走了捷径-可以说是搭上了穿梭机-其实是特傻😂" class="headerlink" title="因为想要做个 ffmpeg 给视频转码的项目, 要将 ffmpeg 引入, 在引入这个阶段, 我走了捷径, 可以说是搭上了穿梭机(其实是特傻😂)."></a>因为想要做个 ffmpeg 给视频转码的项目, 要将 ffmpeg 引入, 在引入这个阶段, 我走了捷径, 可以说是搭上了穿梭机(其实是特傻😂).</h6><p>我直接从 <code>/usr/local/Cellar</code> 把 <code>lib</code> <code>include</code> 两个文件拉到项目中, 在项目中用到了 <code>avformat</code> <code>avcodec</code> 等等的类, 一切看起来都非常的顺利, 直到我从 ffmpeg 3.4 转到了 4.0 版本…<br>我通过 <code>brew update</code> &amp;&amp; <code>$ brew reinstall ffmpeg --with-x265</code> 命令将 ffmpeg 升级到 4.0版本, 再打开项目, 一运行就报如下错误:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dyld: Library not loaded: /usr/local/opt/ffmpeg/lib/libavdevice.58.dylib  </span><br><span class="line">Reason: image not found</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2018/04/24/偶遇-dylib/WechatIMG5965.jpeg" alt=""></p>
+<p>思考一下, 很大的原因是出在这一堆 <code>.dylib</code> 库中. 报错也让我感到很奇怪, 明明已经将这一堆 <code>.dylib</code> 放到项目中, 怎么 <code>not loaded</code> 的路径会是 <code>/usr/local/opt/ffmpeg/lib/libavdevice.58.dylib</code> ??  </p>
+<p>我到 <code>DerivedData</code> 文件夹中找到了项目生成的 <code>.app</code> 文件, 发现里面并没有 Frameworks 文件夹也找不到任何打包进去 <code>.app</code> 的 <code>.dylib</code> 库.<br>据我所知由于apple为了禁止热更新的关系, 动态库只能通过 <code>Embedded binaries</code> 嵌入式动态库打入到 <code>.app</code> 中, 我一拍大腿以为自己已经找到了解决问题的办法, 赶紧将所有 <code>.dylib</code> 文件加入到<code>Embedded binaries</code>中.<br><img src="/2018/04/24/偶遇-dylib/WechatIMG4.jpeg" alt=""></p>
+<h5 id="然而并没有什么撚用…"><a href="#然而并没有什么撚用…" class="headerlink" title="然而并没有什么撚用…"></a>然而并没有什么撚用…</h5><p>我内心一直在认为, 这个 <code>.dylib</code> 不简单, 里面一定有什么使app在运行的时候指向那个我不想指向的地方: <code>/usr/local/opt/ffmpeg/</code>.<br>在一番google过后, 这两篇文章帮了我的大忙:  </p>
+<blockquote>
+<p><a href="https://www.cnblogs.com/csuftzzk/p/mac_run_path.html" target="_blank" rel="noopener">MacOS平台下@rpath在动态链接库中的应用</a><br><a href="https://blog.csdn.net/vincent2610/article/details/56839494" target="_blank" rel="noopener">Mac下动态库的install_name</a>  </p>
+</blockquote>
+<p>其中文章 <a href="https://blog.csdn.net/vincent2610/article/details/56839494" target="_blank" rel="noopener">Mac下动态库的install_name</a> 详细地指出了 <code>install name</code> 在 <code>.dylib</code> 的作用.<br>我也用 <code>otool -D /我的app包/content/Frameworks/libavdevice.58.dylib</code> 查看了 <code>libavdevice.58.dylib</code> 的 <code>install name</code>, 是指向着 <code>/usr/local/opt/ffmpeg/lib/libavdevice.58.dylib</code>, 这也解释了为什么上面的报错路径会是这个.<br>那么解决问题的办法就是, 使 <code>.dylib</code> 包的 install name 指向正确的路径(通俗解释, 如有不对感谢指出).<br>以其中一个 <code>.dylib</code> 为例, 使用命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ install_name_tool -id @rpath/libavdevice.58.dylib 我的项目路径/lib/libavdevice.58.dylib</span><br></pre></td></tr></table></figure></p>
+<p>就将 <code>libavdevice.58.dylib</code> 的 <code>install name</code> 修改为 <code>@rpath/libavdevice.58.dylib</code>, 而且这个以 <code>@rpath</code> 修饰的 <code>install name</code> 针对各个引用这个 <code>.dylib</code> 库的项目而言是 <code>动态的</code> &amp;&amp; <code>是由项目的 run path 决定的</code>, 对于 <code>@rpath</code> <code>@loader_path</code> <code>@executable_path</code> 的区别, 具体请看 <a href="https://www.cnblogs.com/csuftzzk/p/mac_run_path.html" target="_blank" rel="noopener">MacOS平台下@rpath在动态链接库中的应用</a>.</p>
+<p>上面提到了</p>
+<blockquote>
+<p>以 <code>@rpath</code> 修饰的 <code>install name</code> <code>是由项目的 run path 决定的</code>  </p>
+</blockquote>
+<p>那么我还需要在项目里 <code>Build Settings</code> 中 <code>Runpath search paths</code> 里面加入我将决定这些引入的 <code>.dylib</code> 库真正完整的 <code>install name</code><br><img src="/2018/04/24/偶遇-dylib/WechatIMG5.jpeg" alt=""></p>
+<h2 id="还有更恶心人的"><a href="#还有更恶心人的" class="headerlink" title="还有更恶心人的,"></a>还有更恶心人的,</h2><h2 id="lib-文件夹里面有十几个这样的-dylib-库-这意味着-我要重复这个-install-name-tool-id-rpath-libavdevice-58-dylib-我的项目路径-lib-libavdevice-58-dylib-命令十几次…"><a href="#lib-文件夹里面有十几个这样的-dylib-库-这意味着-我要重复这个-install-name-tool-id-rpath-libavdevice-58-dylib-我的项目路径-lib-libavdevice-58-dylib-命令十几次…" class="headerlink" title="lib 文件夹里面有十几个这样的 .dylib 库, 这意味着, 我要重复这个 $ install_name_tool -id @rpath/libavdevice.58.dylib 我的项目路径/lib/libavdevice.58.dylib 命令十几次…"></a><code>lib</code> 文件夹里面有十几个这样的 <code>.dylib</code> 库, 这意味着, 我要重复这个 <code>$ install_name_tool -id @rpath/libavdevice.58.dylib 我的项目路径/lib/libavdevice.58.dylib</code> 命令十几次…</h2><blockquote>
+<p>我还一度想要写个 python 脚本来完成执行这个命令十几次的任务, 尽管我傻, 但是并没至于如此. 静态编译 ffmpeg 才是出路, 当然这也是后话了.</p>
+</blockquote>
+<p>秉承着 <code>实践是检验真理的唯一道路</code> 这一深深印在我心中的理念, 我手动..人肉..亲自执行了这个命令十几次, 将在项目中 <code>lib</code> 文件夹下的所有的 <code>.dylib</code> 的 <code>install name</code> 都执行了一次, 并且 <code>brew uninstall ffmpeg</code> 删除了本地的 ffmpeg 以确保不会干扰到我这个无聊的实验.</p>
+<p>运行项目, 不再报错, ffmpeg使用正常, 使用 <code>otool -D</code> 命令检查 .app 包包里 /Frameworks 里面 <code>.dylib</code> 库的 <code>install name</code> 确实指向了如我所愿的位置.<br>DONE..</p>
+<p>能够认识到 <code>.dylib</code>, 人肉执行十几次那个修改 <code>install name</code> 的命令, 也是值得.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ffmpeg/" rel="tag"># ffmpeg</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/15/我是房东-项目介绍/" rel="next" title="我是房东-项目介绍">
+                <i class="fa fa-chevron-left"></i> 我是房东-项目介绍
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/30/记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令/" rel="prev" title="记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令">
+                记录一下ffmpeg的静态编译以及如何在项目中以单进程异步线程执行ffmpeg命令 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Czeludzki Siu" />
+            
+              <p class="site-author-name" itemprop="name">Czeludzki Siu</p>
+              <p class="site-description motion-element" itemprop="description">我还想再走远一些</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/czeludzki" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一切的一切都要从编译-ffmpeg-并在-mac-os-项目上引用-ffmpeg-说起"><span class="nav-number">1.</span> <span class="nav-text">一切的一切都要从编译 ffmpeg, 并在 mac os 项目上引用 ffmpeg 说起.</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#因为想要做个-ffmpeg-给视频转码的项目-要将-ffmpeg-引入-在引入这个阶段-我走了捷径-可以说是搭上了穿梭机-其实是特傻😂"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">因为想要做个 ffmpeg 给视频转码的项目, 要将 ffmpeg 引入, 在引入这个阶段, 我走了捷径, 可以说是搭上了穿梭机(其实是特傻😂).</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#然而并没有什么撚用…"><span class="nav-number">1.0.1.</span> <span class="nav-text">然而并没有什么撚用…</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#还有更恶心人的"><span class="nav-number"></span> <span class="nav-text">还有更恶心人的,</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lib-文件夹里面有十几个这样的-dylib-库-这意味着-我要重复这个-install-name-tool-id-rpath-libavdevice-58-dylib-我的项目路径-lib-libavdevice-58-dylib-命令十几次…"><span class="nav-number"></span> <span class="nav-text">lib 文件夹里面有十几个这样的 .dylib 库, 这意味着, 我要重复这个 $ install_name_tool -id @rpath/libavdevice.58.dylib 我的项目路径/lib/libavdevice.58.dylib 命令十几次…</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Czeludzki Siu</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
