@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="Czeludzki Page">
 <meta property="og:description" content="今天在对数据库做数据删除操作时遇到了这么个错误:sqlalchemy.orm.exc.StaleDataError:DELETE statement on table &amp;#39;xxx&amp;#39; expected to delete x row(s); Only x 0 were matched   数据结构如下:12345A, B, C 三张表 + B_C 中间表A.Bs (one to man">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-21T05:59:00.837Z">
+<meta property="og:updated_time" content="2019-03-21T06:00:51.319Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="sqlalchemy.orm.exc.StaleDataError">
 <meta name="twitter:description" content="今天在对数据库做数据删除操作时遇到了这么个错误:sqlalchemy.orm.exc.StaleDataError:DELETE statement on table &amp;#39;xxx&amp;#39; expected to delete x row(s); Only x 0 were matched   数据结构如下:12345A, B, C 三张表 + B_C 中间表A.Bs (one to man">
@@ -337,6 +337,7 @@
       
         <p>今天在对数据库做数据删除操作时遇到了这么个错误:<br><code>sqlalchemy.orm.exc.StaleDataError:DELETE statement on table &#39;xxx&#39; expected to delete x row(s); Only x 0 were matched</code>  </p>
 <p>数据结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">A, B, C 三张表 + B_C 中间表</span><br><span class="line">A.Bs (one to many)</span><br><span class="line">A.Cs (one to many)</span><br><span class="line">B.C (many to many)</span><br><span class="line">C.B (many to many)</span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>
 <p>B 对 C 的引用是这么写的:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cs = db.relationship(&apos;C&apos;, secondary=B_C)</span><br></pre></td></tr></table></figure></p>
 <p>另外也写了 C 对 B 的引用:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bs = db.relationship(&apos;B&apos;, secondary=B_C)</span><br></pre></td></tr></table></figure></p>
 <p>我删除的数据是 A, 而 A 对 B,C 都是 级联删除关系.  </p>
