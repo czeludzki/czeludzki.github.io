@@ -4,12 +4,12 @@ date: 2019-04-02 17:44:39
 tags:
 categories:
 ---
-继承有梦数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置  
+集成友盟数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置  
 `[MobClick setCrashReportEnabled:NO];`  
 问题就能解决的了.  
 并没有啊!!!!  
 去友盟官网找了一下, 从它们的文档中找到了关键的一句:
-
+<!-- more -->
 ``` objc
 [MobClick setCrashReportEnabled:NO];   // 关闭Crash收集
 // **注意：**
