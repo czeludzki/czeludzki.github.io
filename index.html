@@ -338,14 +338,14 @@
 
       
         
-          
-            <p>继承有梦数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置<br><code>[MobClick setCrashReportEnabled:NO];</code><br>问题就能解决的了.<br>并没有啊!!!!<br>去友盟官网找了一下, 从它们的文档中找到了关键的一句:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[MobClick setCrashReportEnabled:<span class="literal">NO</span>];   <span class="comment">// 关闭Crash收集</span></span><br><span class="line"><span class="comment">// **注意：**</span></span><br><span class="line"><span class="comment">// 此函数需在common sdk初始化前适用，默认是开启状态</span></span><br></pre></td></tr></table></figure>
-<p>好吧, 试了一下, 把本来的代码:<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[UMConfigure initWithAppkey:KUMengAppKey channel:<span class="literal">nil</span>];</span><br><span class="line">[MobClick setCrashReportEnabled:!IS_DEBUG];</span><br></pre></td></tr></table></figure></p>
-<p>改为:<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[MobClick setCrashReportEnabled:!IS_DEBUG]; <span class="comment">// 这一行在 sdk 初始化前执行</span></span><br><span class="line">[UMConfigure initWithAppkey:KUMengAppKey channel:<span class="literal">nil</span>];  <span class="comment">// 初始化友盟sdk</span></span><br></pre></td></tr></table></figure></p>
-<p>OK, 奔溃也有详细的打印了.</p>
-
-          
+          <p>集成友盟数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置<br><code>[MobClick setCrashReportEnabled:NO];</code><br>问题就能解决的了.<br>并没有啊!!!!<br>去友盟官网找了一下, 从它们的文档中找到了关键的一句:<br></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/04/02/集成了友盟app分析-debug时无法打印崩溃原因的解决/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>

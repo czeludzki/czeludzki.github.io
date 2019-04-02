@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="继承有梦数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置[MobClick setCrashReportEnabled:NO];问题就能解决的了.并没有啊!!!!去友盟官网找了一下, 从它们的文档中找到了关键的一句: 123[MobClick setCrashReportEnabled:NO];   // 关闭Crash收集// **注意：**// 此函数需在commo">
+<meta name="description" content="集成友盟数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置[MobClick setCrashReportEnabled:NO];问题就能解决的了.并没有啊!!!!去友盟官网找了一下, 从它们的文档中找到了关键的一句:">
 <meta property="og:type" content="article">
 <meta property="og:title" content="集成了友盟app分析,debug时无法打印崩溃原因的解决">
 <meta property="og:url" content="http://www.czeludzki.com/2019/04/02/集成了友盟app分析-debug时无法打印崩溃原因的解决/index.html">
 <meta property="og:site_name" content="Czeludzki Page">
-<meta property="og:description" content="继承有梦数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置[MobClick setCrashReportEnabled:NO];问题就能解决的了.并没有啊!!!!去友盟官网找了一下, 从它们的文档中找到了关键的一句: 123[MobClick setCrashReportEnabled:NO];   // 关闭Crash收集// **注意：**// 此函数需在commo">
+<meta property="og:description" content="集成友盟数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置[MobClick setCrashReportEnabled:NO];问题就能解决的了.并没有啊!!!!去友盟官网找了一下, 从它们的文档中找到了关键的一句:">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-02T09:52:00.695Z">
+<meta property="og:updated_time" content="2019-04-02T09:59:08.128Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="集成了友盟app分析,debug时无法打印崩溃原因的解决">
-<meta name="twitter:description" content="继承有梦数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置[MobClick setCrashReportEnabled:NO];问题就能解决的了.并没有啊!!!!去友盟官网找了一下, 从它们的文档中找到了关键的一句: 123[MobClick setCrashReportEnabled:NO];   // 关闭Crash收集// **注意：**// 此函数需在commo">
+<meta name="twitter:description" content="集成友盟数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置[MobClick setCrashReportEnabled:NO];问题就能解决的了.并没有啊!!!!去友盟官网找了一下, 从它们的文档中找到了关键的一句:">
 
 
 
@@ -335,8 +335,7 @@
       
 
       
-        <p>继承有梦数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置<br><code>[MobClick setCrashReportEnabled:NO];</code><br>问题就能解决的了.<br>并没有啊!!!!<br>去友盟官网找了一下, 从它们的文档中找到了关键的一句:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[MobClick setCrashReportEnabled:<span class="literal">NO</span>];   <span class="comment">// 关闭Crash收集</span></span><br><span class="line"><span class="comment">// **注意：**</span></span><br><span class="line"><span class="comment">// 此函数需在common sdk初始化前适用，默认是开启状态</span></span><br></pre></td></tr></table></figure>
+        <p>集成友盟数据分析以后, 所有的崩溃都没有打印, 烦, 百度了好久, 大多都说只要设置<br><code>[MobClick setCrashReportEnabled:NO];</code><br>问题就能解决的了.<br>并没有啊!!!!<br>去友盟官网找了一下, 从它们的文档中找到了关键的一句:<br><a id="more"></a><br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[MobClick setCrashReportEnabled:<span class="literal">NO</span>];   <span class="comment">// 关闭Crash收集</span></span><br><span class="line"><span class="comment">// **注意：**</span></span><br><span class="line"><span class="comment">// 此函数需在common sdk初始化前适用，默认是开启状态</span></span><br></pre></td></tr></table></figure></p>
 <p>好吧, 试了一下, 把本来的代码:<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[UMConfigure initWithAppkey:KUMengAppKey channel:<span class="literal">nil</span>];</span><br><span class="line">[MobClick setCrashReportEnabled:!IS_DEBUG];</span><br></pre></td></tr></table></figure></p>
 <p>改为:<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[MobClick setCrashReportEnabled:!IS_DEBUG]; <span class="comment">// 这一行在 sdk 初始化前执行</span></span><br><span class="line">[UMConfigure initWithAppkey:KUMengAppKey channel:<span class="literal">nil</span>];  <span class="comment">// 初始化友盟sdk</span></span><br></pre></td></tr></table></figure></p>
 <p>OK, 奔溃也有详细的打印了.</p>
